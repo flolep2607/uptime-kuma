@@ -5,7 +5,7 @@ const server = require("../server");
 const apicache = require("../modules/apicache");
 const Monitor = require("../model/monitor");
 const dayjs = require("dayjs");
-const { UP, flipStatus, debug } = require("../../src/util");
+const { UP, DOWN, flipStatus, debug } = require("../../src/util");
 let router = express.Router();
 
 let cache = apicache.middleware;
@@ -34,6 +34,9 @@ router.get("/api/push/:pushToken", async (request, response) => {
         const previousHeartbeat = await Monitor.getPreviousHeartbeat(monitor.id);
 
         let status = UP;
+        if (request.query.status == "down") {
+            status = DOWN;
+        }
         if (monitor.isUpsideDown()) {
             status = flipStatus(status);
         }

@@ -6,6 +6,7 @@ const Database = require("./database");
 const app = express();
 app.listen(3003, () => console.log("open"));
 const UP = 1;
+const DOWN = 0;
 
 const args = require("args-parser")(process.argv);
 
@@ -32,7 +33,9 @@ Database.connect(false).then(() => {
             );
 
             let status = UP;
-
+            if (request.query.status == "down") {
+                status = DOWN;
+            }
             let isFirstBeat = true;
             let previousStatus = status;
             let duration = 0;
