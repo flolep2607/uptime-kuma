@@ -1,15 +1,12 @@
 const fs = require("fs");
 const { R } = require("redbean-node");
-const { setSetting, setting } = require("./util-server");
 const { debug, sleep } = require("../src/util");
-const dayjs = require("dayjs");
 const knex = require("knex");
 
 /**
  * Database & App Data Folder
  */
 class Database {
-
     /**
      * Data Dir (Default: ./data)
      */
@@ -36,15 +33,16 @@ class Database {
 
     static init(args) {
         // Data Directory (must be end with "/")
-        Database.dataDir = process.env.DATA_DIR || args["data-dir"] || "./data/";
+        Database.dataDir =
+            process.env.DATA_DIR || args["data-dir"] || "./data/";
         Database.path = Database.dataDir + "kuma.db";
-        if (! fs.existsSync(Database.dataDir)) {
+        if (!fs.existsSync(Database.dataDir)) {
             fs.mkdirSync(Database.dataDir, { recursive: true });
         }
 
         Database.uploadDir = Database.dataDir + "upload/";
 
-        if (! fs.existsSync(Database.uploadDir)) {
+        if (!fs.existsSync(Database.uploadDir)) {
             fs.mkdirSync(Database.uploadDir, { recursive: true });
         }
 
@@ -52,13 +50,13 @@ class Database {
     }
 
     static async connect(testMode = false) {
-        const knexConfig = require('../knexfile.js');
+        const knexConfig = require("../knexfile.js");
         knexConfig.setPath(Database.path);
-        
+
         Database.dialect = knexConfig.getDialect();
 
-        const knexInstance = knex(knexConfig['development']);
-        
+        const knexInstance = knex(knexConfig["development"]);
+
         await knexInstance.migrate.latest();
 
         R.setup(knexInstance);
@@ -86,7 +84,10 @@ class Database {
             console.log("SQLite config:");
             console.log(await R.getAll("PRAGMA journal_mode"));
             console.log(await R.getAll("PRAGMA cache_size"));
-            console.log("SQLite Version: " + await R.getCell("SELECT sqlite_version()"));
+            console.log(
+                "SQLite Version: " +
+                    (await R.getCell("SELECT sqlite_version()"))
+            );
         }
     }
 
@@ -128,10 +129,11 @@ class Database {
      * @param version
      */
     static backup(version) {
-        if (Database.dialect !== 'sqlite3')
+        if (Database.dialect !== "sqlite3") {
             return;
-        
-        if (! this.backupPath) {
+        }
+
+        if (!this.backupPath) {
             console.info("Backing up the database");
             this.backupPath = this.dataDir + "kuma.db.bak" + version;
             fs.copyFileSync(Database.path, this.backupPath);
@@ -154,11 +156,14 @@ class Database {
      *
      */
     static restore() {
-        if (Database.dialect !== 'sqlite3')
+        if (Database.dialect !== "sqlite3") {
             return;
-        
+        }
+
         if (this.backupPath) {
-            console.error("Patching the database failed!!! Restoring the backup");
+            console.error(
+                "Patching the database failed!!! Restoring the backup"
+            );
 
             const shmPath = Database.path + "-shm";
             const walPath = Database.path + "-wal";
@@ -177,7 +182,9 @@ class Database {
                     fs.unlinkSync(walPath);
                 }
             } catch (e) {
-                console.log("Restore failed; you may need to restore the backup manually");
+                console.log(
+                    "Restore failed; you may need to restore the backup manually"
+                );
                 process.exit(1);
             }
 
@@ -191,16 +198,15 @@ class Database {
             if (this.backupWalPath) {
                 fs.copyFileSync(this.backupWalPath, walPath);
             }
-
         } else {
             console.log("Nothing to restore");
         }
     }
 
     static getSize() {
-        if (Database.dialect !== 'sqlite3')
-            throw {message: "DB size is only supported on SQLite"};
-        
+        if (Database.dialect !== "sqlite3") {
+            throw { message: "DB size is only supported on SQLite" };
+        }
         debug("Database.getSize()");
         let stats = fs.statSync(Database.path);
         debug(stats);
@@ -208,9 +214,9 @@ class Database {
     }
 
     static async shrink() {
-        if (Database.dialect !== 'sqlite3')
-            throw {message: "VACUUM is only supported on SQLite"};
-        
+        if (Database.dialect !== "sqlite3") {
+            throw { message: "VACUUM is only supported on SQLite" };
+        }
         return R.exec("VACUUM");
     }
 }
