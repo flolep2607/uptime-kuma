@@ -1,6 +1,6 @@
 const express = require("express");
 const dayjs = require("dayjs");
-const Monitor = require("../server//model/monitor");
+const Monitor = require("./monitor");
 const { R } = require("redbean-node");
 const Database = require("../server/database");
 const app = express();

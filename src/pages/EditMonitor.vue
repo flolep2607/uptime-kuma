@@ -429,7 +429,7 @@ export default {
                     name: "",
                     url: "https://",
                     method: "GET",
-                    interval: 60,
+                    interval: 86400,
                     retryInterval: this.interval,
                     maxretries: 0,
                     notificationIDList: {},
