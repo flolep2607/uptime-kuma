@@ -1,10 +1,10 @@
 const express = require("express");
 const dayjs = require("dayjs");
-const Monitor = require("./monitor");
+const Monitor = require("./model/monitor");
 const { R } = require("redbean-node");
-const Database = require("../server/database");
+const Database = require("./database");
 const app = express();
-app.listen(3002, () => console.log("open"));
+app.listen(3003, () => console.log("open"));
 const UP = 1;
 
 const args = require("args-parser")(process.argv);
