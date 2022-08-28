@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 console.log("Welcome to Uptime Kuma");
 const args = require("args-parser")(process.argv);
 const { sleep, debug, getRandomInt, genSecret } = require("../src/util");
@@ -663,16 +664,28 @@ exports.entryPage = "dashboard";
                 if (period == null) {
                     throw new Error("Invalid period.");
                 }
-
-                let list = await R.getAll(`
+                let list = [];
+                try {
+                    list = await R.getAll(
+                        `
                     SELECT * FROM heartbeat
                     WHERE monitor_id = ? AND
                     time > DATETIME('now', '-' || ? || ' hours')
                     ORDER BY time ASC
-                `, [
-                    monitorID,
-                    period,
-                ]);
+                `,
+                        [monitorID, period]
+                    );
+                } catch (e) {
+                    list = await R.getAll(
+                        `
+                    SELECT * FROM heartbeat
+                    WHERE monitor_id = ? AND
+                    time > DATE_SUB(UTC_TIMESTAMP(),INTERVAL ? HOUR)
+                    ORDER BY time ASC
+                `,
+                        [monitorID, period]
+                    );
+                }
 
                 callback({
                     ok: true,
